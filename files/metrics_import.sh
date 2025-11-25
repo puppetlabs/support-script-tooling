@@ -4,7 +4,12 @@ shopt -s nullglob
 for f in /opt/mft-automations/puppet_enterprise_support*gz /opt/mft-automations/puppet_enterprise_support*gz.gpg /opt/mft-automations/puppet_enterprise_support*tar /opt/mft-automations/puppet_enterprise_support*tar.gz; do
    # Does the file have a 5 digit ticket number after puppet_enterprise_support_
    has_ticket=$(echo "$f" | grep -Eo -- 'puppet_enterprise_support_[[:digit:]]+_')
-
+   
+   if [[ $(find "$f" -mmin -2 2>/dev/null) ]]; then
+      echo "INFO: $f is still downloading (mtime < 2 minutes). Skipping..."
+      continue
+   fi
+   
    if ! [[ $has_ticket ]]; then
       echo "ERROR: no ticket ID found in $f"
       mv "$f" /opt/mft-automations/err
