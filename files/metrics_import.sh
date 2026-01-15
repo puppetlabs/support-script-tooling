@@ -71,7 +71,12 @@ for f in /opt/mft-automations/puppet_enterprise_support*gz \
     fi
   fi
 
-  if ! tar tf "$f" | grep -q -m 1 'metrics\/.*json'; then
+  # Check if the archive contains any metrics JSON files
+  json_count=$(tar -tzf "$f" | grep -c '^metrics/.*\.json$')
+  
+  if [ "$json_count" -gt 0 ]; then
+    echo "Found $json_count JSON file(s)"
+  else
     log "No metrics found in $f.  Skipping"
     rm -- "$f"
     continue
